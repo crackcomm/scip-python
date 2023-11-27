@@ -475,7 +475,7 @@ export class TreeVisitor extends ParseTreeWalker {
         const symbol = this.getScipSymbol(node);
         this.document.occurrences.push(
             new scip.Occurrence({
-                symbol_roles: scip.SymbolRole.Import | scip.SymbolRole.ReadAccess,
+                symbol_roles: scip.SymbolRole.Import,
                 symbol: symbol.value,
                 range: parseNodeToRange(node.module, this.fileInfo!.lines).toLsif(),
             })
@@ -490,7 +490,7 @@ export class TreeVisitor extends ParseTreeWalker {
     }
 
     override visitImportFromAs(node: ImportFromAsNode): boolean {
-        const roles = scip.SymbolRole.Import | scip.SymbolRole.ReadAccess;
+        const roles = scip.SymbolRole.Import;
         this.pushNewOccurrence(node, this.getScipSymbol(node), roles);
         return false;
     }
@@ -501,7 +501,7 @@ export class TreeVisitor extends ParseTreeWalker {
     override visitImportAs(node: ImportAsNode): boolean {
         const moduleName = _formatModuleName(node.module);
         const importInfo = getImportInfo(node.module);
-        const roles = scip.SymbolRole.Import | scip.SymbolRole.ReadAccess;
+        const roles = scip.SymbolRole.Import;
         if (
             importInfo &&
             importInfo.resolvedPaths[0] &&
