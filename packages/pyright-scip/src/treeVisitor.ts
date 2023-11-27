@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { AnalyzerFileInfo } from 'pyright-internal/analyzer/analyzerFileInfo';
-import { getFileInfo, getImportInfo } from 'pyright-internal/analyzer/analyzerNodeInfo';
+import { getFileInfo, getFlowNode, getImportInfo } from 'pyright-internal/analyzer/analyzerNodeInfo';
 import { ParseTreeWalker } from 'pyright-internal/analyzer/parseTreeWalker';
 import { TypeEvaluator } from 'pyright-internal/analyzer/typeEvaluatorTypes';
 import { convertOffsetToPosition } from 'pyright-internal/common/positionUtils';
@@ -41,6 +41,7 @@ import {
     DeclarationType,
     isAliasDeclaration,
     isIntrinsicDeclaration,
+    isVariableDeclaration,
 } from 'pyright-internal/analyzer/declaration';
 import { ConfigOptions, ExecutionEnvironment } from 'pyright-internal/common/configOptions';
 import { versionToString } from 'pyright-internal/common/pythonVersion';
@@ -54,6 +55,7 @@ import { HoverResults } from 'pyright-internal/languageService/hoverProvider';
 import { convertDocStringToMarkdown } from 'pyright-internal/analyzer/docStringConversion';
 import { assert } from 'pyright-internal/common/debug';
 import { getClassFieldsRecursive } from 'pyright-internal/analyzer/typeUtils';
+import { FlowFlags } from 'pyright-internal/analyzer/codeFlowTypes';
 
 //  Useful functions for later, but haven't gotten far enough yet to use them.
 //      extractParameterDocumentation
@@ -571,6 +573,12 @@ export class TreeVisitor extends ParseTreeWalker {
 
         if (!decl.node) {
             return this.emitDeclarationWithoutNode(node, decl);
+        }
+
+        if (isVariableDeclaration(decl) && getFlowNode(decl.node)!?.flags & FlowFlags.Assignment) {
+            const symbol = this.getScipSymbol(decl.node);
+            this.pushNewOccurrence(node, symbol, scip.SymbolRole.WriteAccess);
+            return true;
         }
 
         const existingSymbol = this.rawGetLsifSymbol(decl.node);
