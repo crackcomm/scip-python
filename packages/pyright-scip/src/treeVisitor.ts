@@ -1432,7 +1432,12 @@ export class TreeVisitor extends ParseTreeWalker {
 
         // This isn't correct: gets the current file, not the import file
         // let filepath = getFileInfoFromNode(_node)!.filePath;
-        return this.config.pythonEnvironment.getPackageForModule(moduleName);
+        const pkg = this.config.pythonEnvironment.getPackageForModule(moduleName);
+        if (!pkg && nodeFileInfo) {
+            console.log(`no package for module ${moduleName}. returning stdlib`);
+            return this.stdlibPackage;
+        }
+        return pkg;
     }
 
     private emitExternalSymbolInformation(node: ParseNode, symbol: ScipSymbol, documentation: string[]) {

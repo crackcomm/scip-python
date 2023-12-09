@@ -5,8 +5,8 @@ import importlib.resources
 
 importlib.resources.read_text('pre_commit.resources', 'filename')
 #^^^^^^^^^^^^^^^^^^ reference  python-stdlib 3.11 `importlib.resources`/__init__:
-#                   ^^^^^^^^^ reference local 0
+#                   ^^^^^^^^^ reference  python-stdlib 3.11 `importlib.resources`/read_text().
 importlib.resources.read_text('pre_commit.resources', 'filename')
 #^^^^^^^^ reference  python-stdlib 3.11 `importlib.resources`/__init__:
-#                   ^^^^^^^^^ reference local 0
+#                   ^^^^^^^^^ reference  python-stdlib 3.11 `importlib.resources`/read_text().
 
