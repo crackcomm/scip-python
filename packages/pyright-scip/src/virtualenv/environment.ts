@@ -43,9 +43,9 @@ function pipBulkShow(names: string[]): string[] {
 export default function getEnvironment(
     projectFiles: Set<string>,
     projectVersion: string,
-    cachedEnvFile: string | undefined
+    cachedEnvFile: string | undefined,
 ): PythonEnvironment {
-    if (cachedEnvFile) {
+    if (cachedEnvFile && fs.existsSync(cachedEnvFile)) {
         let f = JSON.parse(fs.readFileSync(cachedEnvFile).toString()).map((entry: any) => {
             return new PythonPackage(entry.name, entry.version, entry.files);
         });
@@ -63,6 +63,9 @@ export default function getEnvironment(
         const info = bulk.map((shown) => {
             return PythonPackage.fromPipShow(shown);
         });
+        if (cachedEnvFile && !fs.existsSync(cachedEnvFile)) {
+            fs.writeFileSync(cachedEnvFile, JSON.stringify(info));
+        }
         return new PythonEnvironment(projectFiles, projectVersion, info);
     });
 }
