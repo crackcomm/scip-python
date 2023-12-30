@@ -192,7 +192,7 @@ export class Indexer {
         withStatus('Index workspace and track project files', () => {
             this.program.indexWorkspace((filepath: string) => {
                 // Filter out filepaths not part of this project
-                if (filepath.indexOf(this.scipConfig.projectRoot) != 0) {
+                if (filepath.indexOf(this.getProjectRoot()) != 0) {
                     return;
                 }
 
