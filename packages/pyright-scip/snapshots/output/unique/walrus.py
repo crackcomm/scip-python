@@ -13,7 +13,7 @@ text = "Some_name123"
 # if statement
 if (n := len(some_list)) > 10:
 #   ^ definition  snapshot-util 0.1 walrus/n.
-#        ^^^ reference local 0
+#        ^^^ reference  python-stdlib 3.11 builtins/len().
 #            ^^^^^^^^^ reference  snapshot-util 0.1 walrus/some_list.
     print(f"List is too long with {n} elements.")
 #   ^^^^^ reference  python-stdlib 3.11 builtins/print().
@@ -36,19 +36,19 @@ def show_some_comprehension():
 #   ^^^^^^^^^^^^^^^^^^^^^^^ definition  snapshot-util 0.1 walrus/show_some_comprehension().
     [print(x, root) for x in some_list if (x % 2 == 0) and (root := x**0.5) > 5]
 #    ^^^^^ reference  python-stdlib 3.11 builtins/print().
-#          ^ reference local 1
-#             ^^^^ reference local 2
-#                       ^ definition local 1
+#          ^ reference local 0
+#             ^^^^ reference local 1
+#                       ^ definition local 0
 #                            ^^^^^^^^^ reference  snapshot-util 0.1 walrus/some_list.
-#                                          ^ reference local 1
-#                                                           ^^^^ definition local 2
-#                                                                   ^ reference local 1
+#                                          ^ reference local 0
+#                                                           ^^^^ definition local 1
+#                                                                   ^ reference local 0
 
 
 # while loop
 while (line := input("Enter text: ")) != "quit":
 #      ^^^^ definition  snapshot-util 0.1 walrus/line.
-#              ^^^^^ reference local 3
+#              ^^^^^ reference  python-stdlib 3.11 builtins/input().
     print(f"You entered: {line}")
 #   ^^^^^ reference  python-stdlib 3.11 builtins/print().
 #                         ^^^^ reference  snapshot-util 0.1 walrus/line.
@@ -56,10 +56,10 @@ while (line := input("Enter text: ")) != "quit":
 
 # if + comprehension
 if any((any_n := num) < 0 for num in some_list):
-#  ^^^ reference local 4
+#  ^^^ reference  python-stdlib 3.11 builtins/any().
 #       ^^^^^ definition any_n.
-#                ^^^ reference local 5
-#                             ^^^ definition local 5
+#                ^^^ reference local 2
+#                             ^^^ definition local 2
 #                                    ^^^^^^^^^ reference  snapshot-util 0.1 walrus/some_list.
     print(f"Negative number found: {any_n}")
 #   ^^^^^ reference  python-stdlib 3.11 builtins/print().

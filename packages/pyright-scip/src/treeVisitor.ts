@@ -990,7 +990,7 @@ export class TreeVisitor extends ParseTreeWalker {
         if (!Types.isUnknown(builtinType)) {
             switch (builtinType.category) {
                 case TypeCategory.Function: {
-                    const symbol = this.getIntrinsicSymbol(node);
+                    const symbol = this.getScipSymbol(decl!.node);
                     this.pushNewOccurrence(node, symbol);
 
                     const doc = builtinType.details.docString;
