@@ -12,19 +12,18 @@ export default class PythonPackage {
 
         let gettingFiles = false;
         for (let line of output.split('\n')) {
-            line = line.trim();
-            if (!line) {
+            if (!line.trim()) {
                 continue;
             }
 
-            let split = line.split(':', 2).map((x) => x.trim());
+            let split = line.split(':', 2);
             if (split.length == 2) {
                 switch (split[0]) {
                     case 'Name':
-                        name = split[1];
+                        name = split[1].trim();
                         break;
                     case 'Version':
-                        version = split[1];
+                        version = split[1].trim();
                     case 'Files':
                         gettingFiles = true;
                 }
@@ -32,6 +31,8 @@ export default class PythonPackage {
                 if (!gettingFiles) {
                     throw 'Unexpected. Thought I should be getting files now';
                 }
+
+                line = line.trim();
 
                 // Skip cached or out of project rfiles
                 if (line.startsWith('..') || line.includes('__pycache__')) {
