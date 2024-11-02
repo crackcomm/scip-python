@@ -209,6 +209,16 @@ export class TreeVisitor extends ParseTreeWalker {
         this._docstringWriter = new TypeStubExtendedWriter(this.config.sourceFile, this.evaluator);
     }
 
+    private isProjectFile(filePath: string): boolean {
+        // Resolve the path to an absolute path
+        const absolutePath = path.resolve(filePath);
+        // Resolve the path relative to the current working directory
+        const relativeToCwd = path.relative(this.cwd, absolutePath);
+        // If any directory in the path starts with a dot, it's a hidden directory
+        const inHiddenDir = absolutePath.split(path.sep).some(segment => segment.startsWith('.'));
+        return !relativeToCwd.startsWith('..') && !inHiddenDir;
+    }
+
     // We have to do this in visitModule because there won't necessarily be a name
     // associated with the module. So this is where we can declare the definition
     // site of a module (which we can use in imports or usages)
@@ -501,19 +511,17 @@ export class TreeVisitor extends ParseTreeWalker {
     //        ^^^^^^^ node.module (create new reference)
     //                   ^ node.alias (create new local definition)
     override visitImportAs(node: ImportAsNode): boolean {
-        const moduleName = _formatModuleName(node.module);
         const importInfo = getImportInfo(node.module);
         const roles = scip.SymbolRole.Import;
-        if (
-            importInfo &&
-            importInfo.resolvedPaths[0] &&
-            path.resolve(importInfo.resolvedPaths[0]).startsWith(this.cwd)
-        ) {
+        const resolvedPath = importInfo?.resolvedPaths?.at(0);
+        if (resolvedPath && this.isProjectFile(resolvedPath)) {
+            const moduleName = this.program._getImportNameForFile(importInfo?.resolvedPaths?.at(-1)!);
             const symbol = Symbols.makeModuleInit(this.projectPackage, moduleName);
             this.pushNewOccurrence(node.module, symbol, roles);
         } else {
             const pythonPackage = this.moduleNameNodeToPythonPackage(node.module);
 
+            const moduleName = _formatModuleName(node.module);
             if (pythonPackage) {
                 const symbol = Symbols.makeModuleInit(pythonPackage, moduleName);
                 this.pushNewOccurrence(node.module, symbol, roles);
@@ -617,7 +625,8 @@ export class TreeVisitor extends ParseTreeWalker {
                     return true;
                 }
 
-                const moduleName = _formatModuleName(declNode.module);
+                const importInfo = getImportInfo(declNode.module);
+                const moduleName = this.program._getImportNameForFile(importInfo?.resolvedPaths?.at(-1)!);
                 const symbol = this.getSymbolOnce(declNode, () => {
                     const pythonPackage = this.moduleNameNodeToPythonPackage(declNode.module, decl);
                     if (!pythonPackage) {
@@ -1426,7 +1435,7 @@ export class TreeVisitor extends ParseTreeWalker {
         const nodeFilePath = path.resolve(nodeFileInfo.filePath);
 
         // TODO: Should use files from the package to determine this -- should be able to do that quite easily.
-        if (nodeFilePath.startsWith(this.cwd)) {
+        if (this.isProjectFile(nodeFilePath)) {
             return this.projectPackage;
         }
 
@@ -1651,7 +1660,7 @@ export class TreeVisitor extends ParseTreeWalker {
         if (declPath && declPath.length !== 0) {
             const p = path.resolve(declPath);
 
-            if (p.startsWith(this.cwd)) {
+            if (this.isProjectFile(p)) {
                 return this.projectPackage;
             }
         }
