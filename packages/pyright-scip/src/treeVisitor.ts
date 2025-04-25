@@ -289,6 +289,7 @@ export class TreeVisitor extends ParseTreeWalker {
                 new scip.SymbolInformation({
                     symbol: this.getScipSymbol(node).value,
                     documentation: _formatHover(hoverResult!),
+                    kind: scip.SymbolInformation.Kind.Field,
                 })
             );
         }
@@ -319,6 +320,7 @@ export class TreeVisitor extends ParseTreeWalker {
                         new scip.SymbolInformation({
                             symbol: this.getScipSymbol(dec.node).value,
                             documentation,
+                            kind: scip.SymbolInformation.Kind.Variable,
                         })
                     );
                 }
@@ -424,6 +426,7 @@ export class TreeVisitor extends ParseTreeWalker {
                 symbol: this.getScipSymbol(node).value,
                 documentation,
                 relationships,
+                kind: scip.SymbolInformation.Kind.Function,
             })
         );
 
@@ -453,6 +456,7 @@ export class TreeVisitor extends ParseTreeWalker {
                 new scip.SymbolInformation({
                     symbol: symbol.value,
                     documentation: paramDocumentation,
+                    kind: scip.SymbolInformation.Kind.Parameter,
                 })
             );
 
@@ -804,6 +808,7 @@ export class TreeVisitor extends ParseTreeWalker {
                             symbol: symbol.value,
                             documentation,
                             relationships,
+                            kind: scip.SymbolInformation.Kind.Class,
                         })
                     );
 
